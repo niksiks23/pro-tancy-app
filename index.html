@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PRO ТАНЦЫ | клуб</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #9d4edd;
+            --primary-dark: #7b2cbf;
+            --secondary: #00bbf9;
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(20, 10, 30, 0.7);
+            --glass-border: rgba(157, 78, 221, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-primary);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 390px;
+            height: 100vh;
+            height: 100dvh;
+            background: linear-gradient(145deg, #0f0f1a 0%, #1a1025 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            margin: 0 auto;
+        }
+
+        .app {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2;
+        }
+
+        .app-header {
+            padding: 15px 20px 8px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(26, 16, 37, 0.95) 0%, rgba(26, 16, 37, 0.8) 100%);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-bottom: 1px solid var(--glass-border);
+            flex-shrink: 0;
+        }
+
+        .app-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 30px;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-header h1:active {
+            transform: scale(0.95);
+            background: rgba(157, 78, 221, 0.2);
+            -webkit-background-clip: text;
+        }
+
+        .app-header p {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 16px 10px;
+            background: rgba(26, 16, 37, 0.9);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-bottom: 1px solid var(--glass-border);
+            flex-shrink: 0;
+            gap: 5px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 500;
+            padding: 6px 0;
+            border-radius: 20px;
+            flex: 1;
+            max-width: 75px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item.active svg {
+            color: var(--primary);
+            filter: drop-shadow(0 0 5px var(--primary));
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 16px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .clips-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .clip-card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: transform 0.15s ease;
+        }
+
+        .clip-card:active {
+            transform: scale(0.97);
+        }
+
+        .clip-thumbnail {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.2), rgba(0, 187, 249, 0.2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clip-thumbnail svg {
+            width: 28px;
+            height: 28px;
+            color: var(--primary);
+            opacity: 0.8;
+        }
+
+        .clip-info {
+            padding: 10px;
+        }
+
+        .clip-title {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 3px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .clip-description {
+            font-size: 10px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .clip-stats {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 16px;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 340px;
+            max-height: 80vh;
+            background: #1a1025;
+            border-radius: 22px;
+            padding: 18px;
+            border: 1px solid var(--glass-border);
+            overflow-y: auto;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .video-placeholder svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+
+        .reactions-container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 16px 0;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+        }
+
+        .reaction-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .reaction-btn:active {
+            transform: scale(0.9);
+        }
+
+        .reaction-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .reaction-btn.liked .reaction-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .reaction-btn.disliked .reaction-icon {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        }
+
+        .reaction-icon svg {
+            width: 22px;
+            height: 22px;
+            color: white;
+        }
+
+        .reaction-count {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .reaction-label {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .comments-section {
+            max-height: 120px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 14px;
+            margin: 14px 0;
+        }
+
+        .comment {
+            padding: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment-author {
+            color: var(--primary);
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        .calendar-wrapper {
+            background: var(--bg-card);
+            backdrop-filter: blur(5px);
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .calendar-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .calendar-nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .calendar-nav-btn:active {
+            background: var(--primary);
+        }
+
+        .calendar-nav-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .weekday {
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .calendar-day:active {
+            background: rgba(157, 78, 221, 0.3);
+        }
+
+        .calendar-day.has-training {
+            background: rgba(157, 78, 221, 0.2);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .calendar-day.selected {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.2;
+        }
+
+        .trainings-container {
+            margin-top: 12px;
+        }
+
+        .trainings-title {
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trainings-title span {
+            background: rgba(157, 78, 221, 0.2);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            color: var(--primary);
+        }
+
+        .training-item {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            margin-bottom: 6px;
+            border-left: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .training-time {
+            background: rgba(157, 78, 221, 0.2);
+            padding: 4px 8px;
+            border-radius: 16px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .training-name {
+            flex: 1;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .no-trainings {
+            padding: 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .rules-container {
+            padding: 16px;
+            background: var(--bg-card);
+            backdrop-filter: blur(5px);
+            border-radius: 18px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .rules-container h2 {
+            font-size: 18px;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .rule-number {
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 11px;
+            color: white;
+        }
+
+        .rule-text {
+            flex: 1;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .classes-placeholder {
+            text-align: center;
+            padding: 30px 16px;
+            background: var(--bg-card);
+            backdrop-filter: blur(5px);
+            border-radius: 18px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .classes-placeholder svg {
+            width: 50px;
+            height: 50px;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .classes-placeholder h3 {
+            font-size: 16px;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .classes-placeholder p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .admin-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 280px;
+            background: #1a1025;
+            border-radius: 24px;
+            padding: 24px 20px;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary);
+            box-shadow: 0 10px 40px rgba(157, 78, 221, 0.4);
+        }
+
+        .admin-modal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .admin-modal h3 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .admin-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .admin-btn {
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 6px 0;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .admin-btn:active {
+            transform: scale(0.97);
+        }
+
+        .admin-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(3px);
+            z-index: 2500;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .admin-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .admin-panel {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            max-width: 390px;
+            right: 0;
+            margin: 0 auto;
+            background: #1a1025;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            padding: 24px 20px 30px;
+            z-index: 3500;
+            transition: bottom 0.3s ease;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+            border-top: 2px solid var(--primary);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .admin-panel.active {
+            bottom: 0;
+        }
+
+        .admin-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+            margin: 0 auto 20px;
+        }
+
+        .admin-panel h2 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .admin-section {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .admin-section h3 {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .admin-close {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            z-index: 4000;
+            box-shadow: 0 5px 20px rgba(157, 78, 221, 0.4);
+        }
+
+        @supports (padding: max(0px)) {
+            .app-header {
+                padding-top: max(15px, env(safe-area-inset-top) + 10px);
+            }
+            .admin-panel {
+                padding-bottom: max(30px, env(safe-area-inset-bottom) + 20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app" id="mainApp">
+            <header class="app-header">
+                <h1 id="adminTrigger">PRO ТАНЦЫ</h1>
+                <p>DANCE CLUB</p>
+            </header>
+
+            <nav class="nav-bar" id="navigation">
+                <!-- Поменял местами: теперь сначала Расписание, потом Клипы -->
+                <div class="nav-item active" data-page="schedule">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span>Расписание</span>
+                </div>
+                <div class="nav-item" data-page="clips">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="2" width="20" height="20" rx="4" />
+                        <path d="M8 2v20M16 2v20M2 8h20M2 16h20" />
+                    </svg>
+                    <span>Клипы</span>
+                </div>
+                <div class="nav-item" data-page="rules">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <span>Правила</span>
+                </div>
+                <div class="nav-item" data-page="classes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+                        <line x1="6" y1="1" x2="6" y2="4" />
+                        <line x1="10" y1="1" x2="10" y2="4" />
+                        <line x1="14" y1="1" x2="14" y2="4" />
+                    </svg>
+                    <span>Занятия</span>
+                </div>
+            </nav>
+
+            <div class="content" id="content"></div>
+        </div>
+
+        <div class="admin-overlay" id="adminOverlay"></div>
+
+        <div class="admin-modal" id="adminLoginModal">
+            <h3>Вход администратора</h3>
+            <input type="password" class="admin-input" id="adminPassword" placeholder="Пароль" />
+            <button class="admin-btn" onclick="checkAdminPassword()">Войти</button>
+            <button class="admin-btn secondary" onclick="closeAdminLogin()">Отмена</button>
+        </div>
+
+        <div class="admin-panel" id="adminPanel">
+            <button class="admin-close" onclick="closeAdminPanel()">✕</button>
+            <div class="admin-handle"></div>
+            <h2>Управление</h2>
+            
+            <div class="admin-section">
+                <h3>➕ Добавить клип</h3>
+                <input type="text" class="admin-input" id="clipTitle" placeholder="Название" />
+                <input type="text" class="admin-input" id="clipDesc" placeholder="Описание" />
+                <input type="url" class="admin-input" id="clipUrl" placeholder="URL видео" />
+                <button class="admin-btn" onclick="addClip()">Добавить клип</button>
+            </div>
+
+            <div class="admin-section">
+                <h3>📅 Расписание</h3>
+                <input type="date" class="admin-input" id="trainingDate" />
+                <input type="time" class="admin-input" id="trainingTime" />
+                <input type="text" class="admin-input" id="trainingName" placeholder="Название" />
+                <button class="admin-btn" onclick="addTraining()">Добавить</button>
+                <button class="admin-btn secondary" onclick="clearTraining()">Очистить день</button>
+            </div>
+            
+            <div class="admin-section">
+                <h3>📝 Правила</h3>
+                <textarea class="admin-input" id="rulesText" rows="3" placeholder="Текст правил"></textarea>
+                <button class="admin-btn" onclick="saveRules()">Сохранить</button>
+            </div>
+            
+            <button class="admin-btn secondary" onclick="closeAdminPanel()">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        const appData = {
+            clips: [],
+            trainings: {
+                '2024-02-25': [{ time: '18:00', name: 'Хип-хоп' }, { time: '20:00', name: 'Контемп' }],
+                '2024-02-26': [{ time: '19:00', name: 'Брейк-данс' }],
+                '2024-02-27': [{ time: '18:30', name: 'Джаз-фанк' }]
+            },
+            rules: '1. Приходить за 15 минут\n2. Сменная обувь\n3. Вода с собой\n4. Предупреждать о пропусках'
+        };
+
+        let currentPage = 'schedule';
+        let selectedDate = new Date().toISOString().split('T')[0];
+        let currentMonth = new Date();
+        let isAdmin = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPage();
+            initAdminTrigger();
+        });
+
+        function initAdminTrigger() {
+            const trigger = document.getElementById('adminTrigger');
+            trigger.addEventListener('click', () => {
+                document.getElementById('adminLoginModal').classList.add('active');
+                document.getElementById('adminOverlay').classList.add('active');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            });
+        }
+
+        window.closeAdminLogin = function() {
+            document.getElementById('adminLoginModal').classList.remove('active');
+            document.getElementById('adminOverlay').classList.remove('active');
+        };
+
+        window.checkAdminPassword = function() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === 'admin123') {
+                isAdmin = true;
+                closeAdminLogin();
+                
+                document.getElementById('rulesText').value = appData.rules;
+                
+                setTimeout(() => {
+                    document.getElementById('adminPanel').classList.add('active');
+                    document.getElementById('adminOverlay').classList.add('active');
+                }, 300);
+                
+                showToast('Добро пожаловать, администратор!');
+            } else {
+                showToast('Неверный пароль');
+            }
+        };
+
+        window.closeAdminPanel = function() {
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('adminOverlay').classList.remove('active');
+        };
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                currentPage = item.dataset.page;
+                renderPage();
+            });
+        });
+
+        function renderPage() {
+            const content = document.getElementById('content');
+            if (!content) return;
+            
+            switch(currentPage) {
+                case 'schedule': renderSchedule(content); break;
+                case 'clips': renderClips(content); break;
+                case 'rules': renderRules(content); break;
+                case 'classes': renderClasses(content); break;
+            }
+        }
+
+        function renderClips(container) {
+            if (appData.clips.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px 20px; background: var(--bg-card); border-radius: 18px;">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5">
+                            <rect x="2" y="2" width="20" height="20" rx="4" />
+                            <path d="M8 2v20M16 2v20M2 8h20M2 16h20" />
+                        </svg>
+                        <h3 style="margin: 15px 0; color: var(--primary);">Нет клипов</h3>
+                        <p style="color: var(--text-muted); font-size: 12px;">Клипы появятся позже</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div class="clips-grid">';
+            appData.clips.forEach(clip => {
+                html += `
+                    <div class="clip-card" onclick="openClip(${clip.id})">
+                        <div class="clip-thumbnail">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" />
+                                <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
+                            </svg>
+                        </div>
+                        <div class="clip-info">
+                            <div class="clip-title">${clip.title}</div>
+                            <div class="clip-description">${clip.description}</div>
+                            <div class="clip-stats">
+                                <span>👍 ${clip.likes}</span>
+                                <span>👎 ${clip.dislikes}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderSchedule(container) {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+            
+            const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            const weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+            
+            let html = `
+                <div class="calendar-wrapper">
+                    <div class="calendar-header">
+                        <button class="calendar-nav-btn" onclick="changeMonth(-1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6" /></svg>
+                        </button>
+                        <h3>${months[month]} ${year}</h3>
+                        <button class="calendar-nav-btn" onclick="changeMonth(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6" /></svg>
+                        </button>
+                    </div>
+                    <div class="weekdays">${weekdays.map(d => `<div class="weekday">${d}</div>`).join('')}</div>
+                    <div class="calendar-grid">
+            `;
+            
+            for (let i = 0; i < startDay; i++) html += '<div class="calendar-day other-month"></div>';
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const hasTraining = appData.trainings[dateStr];
+                const isSelected = selectedDate === dateStr;
+                html += `<div class="calendar-day ${hasTraining ? 'has-training' : ''} ${isSelected ? 'selected' : ''}" onclick="selectDate('${dateStr}')">${i}</div>`;
+            }
+            
+            html += '</div></div><div class="trainings-container">';
+            html += `<div class="trainings-title">📅 Тренировки <span>${formatDate(selectedDate)}</span></div>`;
+            
+            if (appData.trainings[selectedDate]?.length > 0) {
+                appData.trainings[selectedDate].forEach(t => {
+                    html += `<div class="training-item"><span class="training-time">${t.time}</span><span class="training-name">${t.name}</span></div>`;
+                });
+            } else {
+                html += '<div class="no-trainings">Нет тренировок</div>';
+            }
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function renderRules(container) {
+            const rulesList = appData.rules.split('\n').map((rule, i) => {
+                const text = rule.replace(/^\d+\.\s*/, '');
+                return { number: i + 1, text };
+            });
+            
+            let html = '<div class="rules-container"><h2>Правила клуба</h2>';
+            rulesList.forEach(rule => {
+                html += `<div class="rule-item"><div class="rule-number">${rule.number}</div><div class="rule-text">${rule.text}</div></div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderClasses(container) {
+            container.innerHTML = `
+                <div class="classes-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <h3>Скоро появятся</h3>
+                    <p>Расписание занятий будет доступно в ближайшее время</p>
+                </div>
+            `;
+        }
+
+        window.openClip = function(clipId) {
+            const clip = appData.clips.find(c => c.id === clipId);
+            if (!clip) return;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'clipModal';
+            
+            const likeClass = clip.userReaction === 'like' ? 'liked' : '';
+            const dislikeClass = clip.userReaction === 'dislike' ? 'disliked' : '';
+            
+            let commentsHtml = '';
+            clip.comments.forEach(c => {
+                const [author, text] = c.split(': ');
+                commentsHtml += `<div class="comment"><span class="comment-author">${author}</span>${text}</div>`;
+            });
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="video-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="white"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="white"/></svg></div>
+                    <h3 style="font-size:16px; margin-bottom:4px;">${clip.title}</h3>
+                    <p style="font-size:11px; color:rgba(255,255,255,0.6); margin-bottom:10px;">${clip.description}</p>
+                    
+                    <div class="reactions-container">
+                        <div class="reaction-btn ${likeClass}" onclick="handleReaction(${clipId}, 'like')">
+                            <div class="reaction-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
+                            <span class="reaction-count">${clip.likes}</span>
+                            <span class="reaction-label">Нравится</span>
+                        </div>
+                        <div class="reaction-btn ${dislikeClass}" onclick="handleReaction(${clipId}, 'dislike')">
+                            <div class="reaction-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H7m10 0h3a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3"/></svg></div>
+                            <span class="reaction-count">${clip.dislikes}</span>
+                            <span class="reaction-label">Не нравится</span>
+                        </div>
+                    </div>
+                    
+                    <div class="comments-section">${commentsHtml || '<div style="text-align:center; color:rgba(255,255,255,0.2);">Нет комментариев</div>'}</div>
+                    
+                    <div style="display:flex; gap:6px; margin:12px 0;">
+                        <input type="text" class="admin-input" id="newComment" placeholder="Комментарий..." style="flex:1; padding:10px;">
+                        <button class="admin-btn" onclick="addComment(${clipId})" style="width:auto; padding:10px 16px;">➤</button>
+                    </div>
+                    
+                    <button class="admin-btn secondary" onclick="closeModal()">Закрыть</button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        };
+
+        window.handleReaction = function(clipId, type) {
+            const clip = appData.clips.find(c => c.id === clipId);
+            if (!clip) return;
+            
+            if (clip.userReaction === type) {
+                clip[type === 'like' ? 'likes' : 'dislikes']--;
+                clip.userReaction = null;
+            } else {
+                if (clip.userReaction) {
+                    clip[clip.userReaction === 'like' ? 'likes' : 'dislikes']--;
+                }
+                clip[type === 'like' ? 'likes' : 'dislikes']++;
+                clip.userReaction = type;
+            }
+            
+            closeModal();
+            openClip(clipId);
+        };
+
+        window.addComment = function(clipId) {
+            const comment = document.getElementById('newComment')?.value;
+            if (comment?.trim()) {
+                const clip = appData.clips.find(c => c.id === clipId);
+                clip?.comments.push('Вы: ' + comment.trim());
+                closeModal();
+                openClip(clipId);
+            }
+        };
+
+        window.closeModal = function() {
+            document.getElementById('clipModal')?.remove();
+        };
+
+        window.changeMonth = function(delta) {
+            currentMonth.setMonth(currentMonth.getMonth() + delta);
+            renderPage();
+        };
+
+        window.selectDate = function(date) {
+            selectedDate = date;
+            renderPage();
+        };
+
+        function formatDate(dateStr) {
+            const [y, m, d] = dateStr.split('-');
+            return `${d}.${m}`;
+        }
+
+        window.addClip = function() {
+            if (!isAdmin) return;
+            const title = document.getElementById('clipTitle')?.value;
+            const desc = document.getElementById('clipDesc')?.value;
+            const url = document.getElementById('clipUrl')?.value;
+            
+            if (title && desc && url) {
+                appData.clips.push({
+                    id: appData.clips.length + 1,
+                    title, description: desc, url,
+                    likes: 0, dislikes: 0, userReaction: null, comments: []
+                });
+                
+                ['clipTitle', 'clipDesc', 'clipUrl'].forEach(id => document.getElementById(id).value = '');
+                if (currentPage === 'clips') renderPage();
+                showToast('Клип добавлен');
+            }
+        };
+
+        window.addTraining = function() {
+            if (!isAdmin) return;
+            const date = document.getElementById('trainingDate')?.value;
+            const time = document.getElementById('trainingTime')?.value;
+            const name = document.getElementById('trainingName')?.value;
+            
+            if (date && time && name) {
+                if (!appData.trainings[date]) appData.trainings[date] = [];
+                appData.trainings[date].push({ time, name });
+                
+                ['trainingDate', 'trainingTime', 'trainingName'].forEach(id => document.getElementById(id).value = '');
+                if (currentPage === 'schedule') renderPage();
+                showToast('Тренировка добавлена');
+            }
+        };
+
+        window.clearTraining = function() {
+            if (!isAdmin) return;
+            const date = document.getElementById('trainingDate')?.value;
+            if (date && appData.trainings[date]) {
+                delete appData.trainings[date];
+                document.getElementById('trainingDate').value = '';
+                if (currentPage === 'schedule') renderPage();
+                showToast('Тренировки удалены');
+            }
+        };
+
+        window.saveRules = function() {
+            if (!isAdmin) return;
+            const rules = document.getElementById('rulesText')?.value;
+            if (rules) {
+                appData.rules = rules;
+                if (currentPage === 'rules') renderPage();
+                showToast('Правила сохранены');
+            }
+        };
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 1500);
+        }
+    </script>
+</body>
+</html>
