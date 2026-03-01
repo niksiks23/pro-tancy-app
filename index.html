@@ -1991,7 +1991,7 @@
         <div class="app" id="mainApp">
             <header class="app-header">
                 <h1 id="adminTrigger">РИТМ</h1>
-                <p>ЗДЕСЬ ЕСТЬ ВСЕ</p>
+                <p>ver 1.0</p>
                 <div class="admin-badge" id="adminBadge">ADMIN</div>
                 <div class="replay-onboarding" onclick="showOnboarding()">👋</div>
             </header>
@@ -3401,142 +3401,185 @@
         };
 
         function extractVKVideoId(url) {
-            try {
-                const patterns = [
-                    /vk\.com\/video-?(\d+)_(\d+)/i,
-                    /vk\.com\/([\w\-]+)\?z=video-?(\d+)_(\d+)/i,
-                    /vkvideo\.ru\/video-?(\d+)_(\d+)/i,
-                    /vk\.com\/video\.php\?.*?oid=-?(\d+).*?id=(\d+)/i,
-                    /video-?(\d+)_(\d+)/i
-                ];
+    try {
+        console.log('Парсинг VK ссылки:', url);
+        
+        // Новые паттерны для vkvideo.ru и старых форматов
+        const patterns = [
+            // Новый формат: https://vkvideo.ru/video-123456_789012345
+            /vkvideo\.ru\/video-?(\d+)_(\d+)/i,
+            // Старый формат: https://vk.com/video-123456_789012345
+            /vk\.com\/video-?(\d+)_(\d+)/i,
+            // Формат с параметрами: https://vk.com/feed?z=video-123456_789012345
+            /vk\.com\/(?:[\w\-]+)?\?.*?z=video-?(\d+)_(\d+)/i,
+            // Мобильный формат: https://m.vk.com/video-123456_789012345
+            /m\.vk\.com\/video-?(\d+)_(\d+)/i,
+            // Формат video.php: https://vk.com/video.php?oid=-123456&id=789012345
+            /vk\.com\/video\.php\?.*?oid=-?(\d+).*?id=(\d+)/i,
+            // Просто video-123_456 в любом месте
+            /video-?(\d+)_(\d+)/i
+        ];
+        
+        for (const pattern of patterns) {
+            const matches = url.match(pattern);
+            if (matches) {
+                console.log('Найдено совпадение по паттерну:', pattern, matches);
                 
-                for (const pattern of patterns) {
-                    const matches = url.match(pattern);
-                    if (matches) {
-                        let owner, id;
-                        
-                        if (matches.length === 3) {
-                            owner = matches[1].startsWith('-') ? matches[1] : `-${matches[1]}`;
-                            id = matches[2];
-                        } else if (matches.length === 4) {
-                            owner = matches[2].startsWith('-') ? matches[2] : `-${matches[2]}`;
-                            id = matches[3];
-                        } else {
-                            continue;
-                        }
-                        
-                        return { owner, id, hash: '' };
+                let owner, id;
+                
+                if (matches.length === 3) {
+                    // Формат: video-123_456 или video123_456
+                    owner = matches[1];
+                    id = matches[2];
+                    
+                    // Добавляем минус если его нет (для отрицательного owner)
+                    if (!owner.startsWith('-') && !isNaN(owner)) {
+                        owner = `-${owner}`;
                     }
+                } else if (matches.length === 4) {
+                    // Формат с z= параметром
+                    owner = matches[2];
+                    id = matches[3];
+                    
+                    if (!owner.startsWith('-') && !isNaN(owner)) {
+                        owner = `-${owner}`;
+                    }
+                } else {
+                    continue;
                 }
                 
-                showToast('Неправильная ссылка ВК. Используйте ссылку вида: https://vk.com/video-123456_789012345');
-                return null;
-            } catch (e) {
-                console.error('Ошибка парсинга VK ссылки:', e);
-                showToast('Ошибка при обработке ссылки ВК');
-                return null;
+                console.log('Извлечено:', { owner, id });
+                
+                // Проверяем, что ID выглядят как числа
+                if (!isNaN(owner.replace('-', '')) && !isNaN(id)) {
+                    return { owner, id, hash: '' };
+                }
             }
         }
+        
+        // Если не нашли по паттернам, показываем понятную ошибку
+        console.error('Не удалось распарсить ссылку:', url);
+        showToast('Неправильная ссылка ВК. Используйте ссылку вида: https://vkvideo.ru/video-123456_789012345');
+        return null;
+    } catch (e) {
+        console.error('Ошибка парсинга VK ссылки:', e);
+        showToast('Ошибка при обработке ссылки ВК');
+        return null;
+    }
+}
 
         window.openClip = function(clipId) {
-            hapticFeedback('medium');
-            const clip = appData.clips.find(c => c.id === clipId);
-            if (!clip) return;
-            
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.id = 'clipModal';
-            
-            const likeClass = clip.userReaction === 'like' ? 'liked' : '';
-            const dislikeClass = clip.userReaction === 'dislike' ? 'disliked' : '';
-            
-            let commentsHtml = '';
-            if (clip.comments) {
-                clip.comments.forEach(c => {
-                    const [author, text] = c.split(': ');
-                    commentsHtml += `<div class="comment"><span class="comment-author">${author}</span>${text}</div>`;
-                });
-            }
-            
-            const videoUrl = clip.url;
-            let videoHtml = '';
-            
-            if (videoUrl.includes('.mp4') || videoUrl.includes('cdn.') || videoUrl.includes('mycdn.me') || videoUrl.includes('storage')) {
-                videoHtml = `
-                    <video controls style="width: 100%; border-radius: 16px;" playsinline>
-                        <source src="${videoUrl}" type="video/mp4">
-                        Ваш браузер не поддерживает видео.
-                    </video>
-                `;
-            } 
-            else if (videoUrl.includes('vk.com/video') || videoUrl.includes('vkvideo.ru/video')) {
-                const videoId = extractVKVideoId(videoUrl);
-                if (videoId) {
-                    videoHtml = `
-                        <iframe 
-                            src="https://vk.com/video_ext.php?oid=${videoId.owner}&id=${videoId.id}&hash=${videoId.hash}&autoplay=0" 
-                            width="100%" 
-                            height="200" 
-                            frameborder="0" 
-                            allowfullscreen>
-                        </iframe>
-                    `;
-                } else {
-                    videoHtml = `<div style="padding: 40px; text-align: center; color: var(--cancel-color);">Не удалось загрузить видео из ВК</div>`;
-                }
-            }
-            else if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-                let youtubeId = '';
-                if (videoUrl.includes('youtu.be/')) {
-                    youtubeId = videoUrl.split('youtu.be/')[1].split('?')[0];
-                } else if (videoUrl.includes('watch?v=')) {
-                    youtubeId = videoUrl.split('watch?v=')[1].split('&')[0];
-                }
-                videoHtml = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allowfullscreen></iframe>`;
-            }
-            else {
-                videoHtml = `
-                    <video controls style="width: 100%; border-radius: 16px;" playsinline>
-                        <source src="${videoUrl}" type="video/mp4">
-                        <p style="padding: 20px; color: var(--cancel-color);">Видео не поддерживается. Попробуйте другую ссылку.</p>
-                    </video>
-                `;
-            }
-            
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <div class="video-placeholder" style="padding: 0; background: black; min-height: 200px;">
-                        ${videoHtml}
-                    </div>
-                    <h3 style="font-size:18px; margin:12px 0 6px;">${clip.title}</h3>
-                    <p style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:12px;">${clip.description}</p>
-                    
-                    <div class="reactions-container">
-                        <div class="reaction-btn ${likeClass}" onclick="handleReaction(${clipId}, 'like')">
-                            <div class="reaction-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
-                            <span class="reaction-count">${clip.likes || 0}</span>
-                            <span class="reaction-label">Нравится</span>
-                        </div>
-                        <div class="reaction-btn ${dislikeClass}" onclick="handleReaction(${clipId}, 'dislike')">
-                            <div class="reaction-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H7m10 0h3a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3"/></svg></div>
-                            <span class="reaction-count">${clip.dislikes || 0}</span>
-                            <span class="reaction-label">Не нравится</span>
-                        </div>
-                    </div>
-                    
-                    <div class="comments-section">${commentsHtml || '<div style="text-align:center; color:rgba(255,255,255,0.2);">Нет комментариев</div>'}</div>
-                    
-                    <div style="display:flex; gap:8px; margin:14px 0;">
-                        <input type="text" class="admin-input" id="newComment" placeholder="Комментарий..." style="flex:1; padding:12px; text-align:left;">
-                        <button class="admin-btn" onclick="addComment(${clipId})" style="width:auto; padding:12px 18px;">➤</button>
-                    </div>
-                    
-                    <button class="admin-btn secondary" onclick="closeModal()">Закрыть</button>
-                </div>
+    hapticFeedback('medium');
+    const clip = appData.clips.find(c => c.id === clipId);
+    if (!clip) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'clipModal';
+    
+    const likeClass = clip.userReaction === 'like' ? 'liked' : '';
+    const dislikeClass = clip.userReaction === 'dislike' ? 'disliked' : '';
+    
+    let commentsHtml = '';
+    if (clip.comments) {
+        clip.comments.forEach(c => {
+            const [author, text] = c.split(': ');
+            commentsHtml += `<div class="comment"><span class="comment-author">${author}</span>${text}</div>`;
+        });
+    }
+    
+    const videoUrl = clip.url;
+    let videoHtml = '';
+    
+    // Прямые MP4 ссылки
+    if (videoUrl.includes('.mp4') || videoUrl.includes('cdn.') || videoUrl.includes('mycdn.me') || videoUrl.includes('storage')) {
+        videoHtml = `
+            <video controls style="width: 100%; border-radius: 16px;" playsinline>
+                <source src="${videoUrl}" type="video/mp4">
+                Ваш браузер не поддерживает видео.
+            </video>
+        `;
+    } 
+    // VK видео (новый формат vkvideo.ru и старый)
+    else if (videoUrl.includes('vk.com/video') || videoUrl.includes('vkvideo.ru/video')) {
+        const videoId = extractVKVideoId(videoUrl);
+        if (videoId) {
+            console.log('Загружаем VK видео с ID:', videoId);
+            videoHtml = `
+                <iframe 
+                    src="https://vk.com/video_ext.php?oid=${videoId.owner}&id=${videoId.id}&hash=${videoId.hash}&autoplay=0" 
+                    width="100%" 
+                    height="200" 
+                    frameborder="0" 
+                    allowfullscreen>
+                </iframe>
             `;
+        } else {
+            videoHtml = `<div style="padding: 40px; text-align: center; color: var(--cancel-color);">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-bottom: 16px;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <p>Не удалось загрузить видео из ВК</p>
+                <p style="font-size: 12px; margin-top: 8px;">Проверьте ссылку: ${videoUrl}</p>
+            </div>`;
+        }
+    }
+    // YouTube
+    else if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+        let youtubeId = '';
+        if (videoUrl.includes('youtu.be/')) {
+            youtubeId = videoUrl.split('youtu.be/')[1].split('?')[0];
+        } else if (videoUrl.includes('watch?v=')) {
+            youtubeId = videoUrl.split('watch?v=')[1].split('&')[0];
+        }
+        videoHtml = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allowfullscreen></iframe>`;
+    }
+    // Пробуем как MP4
+    else {
+        videoHtml = `
+            <video controls style="width: 100%; border-radius: 16px;" playsinline>
+                <source src="${videoUrl}" type="video/mp4">
+                <p style="padding: 20px; color: var(--cancel-color);">Видео не поддерживается. Попробуйте другую ссылку.</p>
+            </video>
+        `;
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="video-placeholder" style="padding: 0; background: black; min-height: 200px;">
+                ${videoHtml}
+            </div>
+            <h3 style="font-size:18px; margin:12px 0 6px;">${clip.title}</h3>
+            <p style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:12px;">${clip.description}</p>
             
-            document.body.appendChild(modal);
-        };
+            <div class="reactions-container">
+                <div class="reaction-btn ${likeClass}" onclick="handleReaction(${clipId}, 'like')">
+                    <div class="reaction-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
+                    <span class="reaction-count">${clip.likes || 0}</span>
+                    <span class="reaction-label">Нравится</span>
+                </div>
+                <div class="reaction-btn ${dislikeClass}" onclick="handleReaction(${clipId}, 'dislike')">
+                    <div class="reaction-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H7m10 0h3a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3"/></svg></div>
+                    <span class="reaction-count">${clip.dislikes || 0}</span>
+                    <span class="reaction-label">Не нравится</span>
+                </div>
+            </div>
+            
+            <div class="comments-section">${commentsHtml || '<div style="text-align:center; color:rgba(255,255,255,0.2);">Нет комментариев</div>'}</div>
+            
+            <div style="display:flex; gap:8px; margin:14px 0;">
+                <input type="text" class="admin-input" id="newComment" placeholder="Комментарий..." style="flex:1; padding:12px; text-align:left;">
+                <button class="admin-btn" onclick="addComment(${clipId})" style="width:auto; padding:12px 18px;">➤</button>
+            </div>
+            
+            <button class="admin-btn secondary" onclick="closeModal()">Закрыть</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+};
 
         window.handleReaction = function(clipId, type) {
             hapticFeedback('light');
